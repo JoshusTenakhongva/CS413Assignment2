@@ -18,8 +18,6 @@ var score = 0;
 var xDirection; 
 var yDirection; 
 var angle; 
-var radianAngle; 
-const pi = Math.PI; 
 var mousePosition = getMousePosition(); 
 
 /*
@@ -47,6 +45,11 @@ function shootBullet( e )
 
 		// Make sure the space doesn't scroll the page
 		e.preventDefault();
+		
+		cannon.position.x = cannon.position.x + 30 * Math.cos( cannon.rotation ); 
+		cannon.position.y = cannon.position.y + 30 * Math.sin( cannon.rotation ); 
+		
+		//spawnBullet( cannon.position.x, cannon.position.y ); 
 		}
 	}
 
@@ -56,6 +59,13 @@ function spawnBullet( xPosition, yPosition )
 	stage.addChild( bullet ); 
 	bullet.position.x = xPosition; 
 	bullet.position.y = yPosition; 
+	}
+	
+function projectBullet( bullet, range )
+	{
+	
+	bullet.position.x = bullet.position.x + range * Math.cos( bullet.rotation ); 
+	bullet.position.y = bullet.position.y + range * Math.sin( bullet.rotation ); 
 	}
 	
 function calculateDirection()
