@@ -13,12 +13,23 @@ var cannon = new PIXI.Sprite( PIXI.Texture.fromImage( "Arrow.png" ));
 var bullet = new PIXI.Sprite( PIXI.Texture.fromImage( "Bullet.png" )); 
 
 /*
-Variables */
+Constant Variables
+*/
+
+const cannonX = 400; 
+const cannonY = 300; 
+const bulletSpeed = 20; 
+
+/*
+Variables 
+*/
 var score = 0;
 var xDirection; 
 var yDirection; 
 var angle; 
 var mousePosition = getMousePosition(); 
+
+var bulletShotFlag = false;
 
 /*
 Initializing object properties
@@ -26,8 +37,8 @@ Initializing object properties
 stage.addChild( cannon ); 
 cannon.anchor.x = 0.5; 
 cannon.anchor.y = 0.5; 
-cannon.position.x = 400; 
-cannon.position.y = 300; 
+cannon.position.x = cannonX; 
+cannon.position.y = cannonY; 
 
 bullet.anchor.x = 0.5; 
 bullet.anchor.y = 0.5; 
@@ -37,38 +48,59 @@ Functions
 */
 function getMousePosition(){ return renderer.plugins.interaction.mouse.global; }
 
+/*
+* Desc: Checks if space bar is pushed and prepares bullet for launch
+*/ 
 function shootBullet( e )
 	{
 		
-	if( e.keyCode == 32 && e.target == document.body )
+	if( e.keyCode == 32 &&
+			e.target == document.body )
 		{
 
 		// Make sure the space doesn't scroll the page
 		e.preventDefault();
 		
-		cannon.position.x = cannon.position.x + 30 * Math.cos( cannon.rotation ); 
-		cannon.position.y = cannon.position.y + 30 * Math.sin( cannon.rotation ); 
+		if( bulletShotFlag == false )
+			{
 		
-		//spawnBullet( cannon.position.x, cannon.position.y ); 
+			spawnBullet( cannon.position.x, cannon.position.y, cannon.rotation ); 
+			
+			bulletShotFlag = true; 
+			}
 		}
 	}
 
-function spawnBullet( xPosition, yPosition )
+/*
+* Desc: Spawns the bullet at the cannon's position and sets the rotation to 
+* 	the same as the cannon. 
+*/ 
+function spawnBullet( xPosition, yPosition, bulletDirection )
 	{
 	
 	stage.addChild( bullet ); 
 	bullet.position.x = xPosition; 
 	bullet.position.y = yPosition; 
+	bullet.rotation = bulletDirection;
 	}
 	
-function projectBullet( bullet, range )
+/*
+* Desc: Changes the position of the bullet based on its rotation 
+*/
+function projectBullet( bullet, range, inMotion )
 	{
 	
-	bullet.position.x = bullet.position.x + range * Math.cos( bullet.rotation ); 
-	bullet.position.y = bullet.position.y + range * Math.sin( bullet.rotation ); 
+	if( inMotion )
+		{
+		bullet.position.x = bullet.position.x + range * Math.cos( bullet.rotation ); 
+		bullet.position.y = bullet.position.y + range * Math.sin( bullet.rotation ); 
+		}
 	}
 	
-function calculateDirection()
+/*
+* Desc: Calculates and changes the cannons direction based on moues position
+*/ 
+function calculateCannonDirection()
 	{
 	
 	xDirection = mousePosition.x - cannon.position.x; 
@@ -77,6 +109,9 @@ function calculateDirection()
 	cannon.rotation = angle; 
 	}
 	
+/*
+* Desc: Checks if the bullet leaves the screen and removes it if so. 
+*/ 
 function checkBulletOutOfBounds( bullet )
 	{
 		
@@ -87,6 +122,8 @@ function checkBulletOutOfBounds( bullet )
 		{
 			
 		stage.removeChild( bullet ); 
+		
+		bulletShotFlag = false; 
 		}
 	}
 
@@ -99,7 +136,10 @@ function animate()
 	requestAnimationFrame( animate );
 	renderer.render( stage );
 	
-	calculateDirection(); 
+	calculateCannonDirection(); 
+	projectBullet( bullet, bulletSpeed, bulletShotFlag ); 
+	
+	checkBulletOutOfBounds( bullet ); 
 
   document.getElementById( "score" ).innerHTML = "1";
 	}
