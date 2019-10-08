@@ -9,9 +9,9 @@ Constant Variables
 const bubbleWandX = 80; 
 const bubbleWandY = 300; 
 const bubbleSpeed = 13; 
-const thornNumber = 3; 
+const thornNumber = 8; 
 const bubbleRadius = 15; 
-const thornSpeed = 3000; 
+const timeInterval = 150; 
 
 /*
 * Creating different containers
@@ -96,9 +96,14 @@ var creditsVisited = false;
 var gameVisited = false; 
 var thornX; 
 var thornY; 
-var thornIndex; 
-var thornTimer; 
+var thornIndex = 0; 
+var thornInterval = 3000; 
 var index; 
+var Thorn; 
+var enoughThorns = false; 
+var timeOfLastThorn; 
+var previousThorn; 
+var thornSpeed = 3000; 
 
 /*
 Initializing object properties
@@ -369,29 +374,35 @@ function checkThornHit( Thorn )
 		}
 	}
 	
-function spawnThorn( Thorn )
+function spawnThorn()
 	{
 		
-	Thorn.position.x = 750; 
-	Thorn.position.y = Math.floor( Math.random() * 550 + 25 ); 
+	if( new Date() - timeOfLastThorn.getTime() >= thornInterval )
 	
-	gameplayScreen.addChild( Thorn ); 
-	
-	createjs.Tween.get( Thorn.position ).to({x: bubbleWandX, y: bubbleWandY}, thornSpeed ); 
-	
-	thornIndex++; 
-	if( thornIndex == thornNumber )
 		{
-		
-		thornIndex = 0; 
+		timeOfLastThorn = new Date(); 
+		Thorn = thorns[ thornIndex ]; 
+		Thorn.position.x = 750; 
+		Thorn.position.y = Math.floor( Math.random() * 550 + 25 ); 
+			
+		gameplayScreen.addChild( Thorn ); 
+			
+		createjs.Tween.get( Thorn.position ).to({x: bubbleWandX, y: bubbleWandY}, thornSpeed ); 
+			
+		previousThorn = thornIndex; 
+		thornIndex++; 
+		if( thornIndex == thornNumber )
+			{
+				
+			thornIndex = 0; 
+			}
+			
+		thornInterval -= timeInterval;
+		thornSpeed -= timeInterval; 
 		}
+			
 	}
 	
-function calculateThornDirection( Thorn )
-	{
-		
-	
-	}
 
 /*
 animate function
@@ -406,10 +417,12 @@ function animate()
 	
 	checkbubbleOutOfBounds( bubble ); 
 	
-	spawnThorn( thorns[ thornIndex ] ); 
+	spawnThorn(); 
+	checkThornHit( thorns[ previousThorn ] ); 
 
   document.getElementById( "score" ).innerHTML = score;
 	}
 
 document.addEventListener( 'keydown', shootBubble );
+timeOfLastThorn = new Date(); 
 animate();
