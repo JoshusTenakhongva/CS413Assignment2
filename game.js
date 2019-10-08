@@ -19,8 +19,8 @@ stage.addChild( titleScreen );
 /*
 * Creating the objects for playing the game. 
 */ 
-var cannon = new PIXI.Sprite( PIXI.Texture.fromImage( "Arrow.png" )); 
-var bullet = new PIXI.Sprite( PIXI.Texture.fromImage( "Bullet.png" )); 
+var bubbleWand = new PIXI.Sprite( PIXI.Texture.fromImage( "bubbleWand.png" )); 
+var bubble = new PIXI.Sprite( PIXI.Texture.fromImage( "bubble.png" )); 
 var titleMenu = new PIXI.Sprite( PIXI.Texture.fromImage( "TitleScreen.png" )); 
 var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "StartButton.png" )); 
 var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "TutorialButton.png" )); 
@@ -67,14 +67,14 @@ titleButton.on( 'mousedown', titleMenuButtonClickHandler );
 /*
 * Populate the gameplay screen 
 */ 
-gameplayScreen.addChild( cannon ); 
+gameplayScreen.addChild( bubbleWand ); 
 
 /*
 Constant Variables
 */
-const cannonX = 400; 
-const cannonY = 300; 
-const bulletSpeed = 20; 
+const bubbleWandX = 400; 
+const bubbleWandY = 300; 
+const bubbleSpeed = 20; 
 
 /*
 Variables 
@@ -84,7 +84,7 @@ var xDirection;
 var yDirection; 
 var angle; 
 var mousePosition = getMousePosition(); 
-var bulletShotFlag = false;
+var bubbleShotFlag = false;
 var index; 
 var score = 0; 
 
@@ -115,18 +115,18 @@ titleButton.position.y = 30;
 titleButton.anchor.x = 0.5; 
 titleButton.anchor.y = 0.5; 
 
-cannon.anchor.x = 0.5; 
-cannon.anchor.y = 0.5; 
-cannon.position.x = cannonX; 
-cannon.position.y = cannonY; 
+bubbleWand.anchor.x = 0.5; 
+bubbleWand.anchor.y = 0.5; 
+bubbleWand.position.x = bubbleWandX; 
+bubbleWand.position.y = bubbleWandY; 
 
 titleMenu.anchor.x = 0.5; 
 titleMenu.anchor.y = 0.5; 
 titleMenu.position.x = 400; 
 titleMenu.position.y = 300; 
 
-bullet.anchor.x = 0.5; 
-bullet.anchor.y = 0.5; 
+bubble.anchor.x = 0.5; 
+bubble.anchor.y = 0.5; 
 
 /*
 Functions 
@@ -139,9 +139,9 @@ Functions
 function getMousePosition(){ return renderer.plugins.interaction.mouse.global; }
 
 /*
-* Desc: Checks if space bar is pushed and prepares bullet for launch
+* Desc: Checks if space bar is pushed and prepares bubble for launch
 */ 
-function shootBullet( e )
+function shootbubble( e )
 	{
 		
 	if( e.keyCode == 32 &&
@@ -154,12 +154,12 @@ function shootBullet( e )
 		screen++; 
 		stage.removeChild( titleScreen ); 
 
-		if( bulletShotFlag == false )
+		if( bubbleShotFlag == false )
 			{
 		
-			spawnBullet( cannon.position.x, cannon.position.y, cannon.rotation ); 
+			spawnbubble( bubbleWand.position.x, bubbleWand.position.y, bubbleWand.rotation ); 
 			
-			bulletShotFlag = true; 
+			bubbleShotFlag = true; 
 			}
 		}
 	}	
@@ -254,58 +254,58 @@ function titleMenuButtonClickHandler( e )
 ************************************************/
 
 /*
-* Desc: Spawns the bullet at the cannon's position and sets the rotation to 
-* 	the same as the cannon. 
+* Desc: Spawns the bubble at the bubbleWand's position and sets the rotation to 
+* 	the same as the bubbleWand. 
 */ 
-function spawnBullet( xPosition, yPosition, bulletDirection )
+function spawnbubble( xPosition, yPosition, bubbleDirection )
 	{
 	
-	stage.addChild( bullet ); 
-	bullet.position.x = xPosition; 
-	bullet.position.y = yPosition; 
-	bullet.rotation = bulletDirection;
+	stage.addChild( bubble ); 
+	bubble.position.x = xPosition; 
+	bubble.position.y = yPosition; 
+	bubble.rotation = bubbleDirection;
 	}
 	
 /*
-* Desc: Changes the position of the bullet based on its rotation 
+* Desc: Changes the position of the bubble based on its rotation 
 */
-function projectBullet( bullet, range, inMotion )
+function projectbubble( bubble, range, inMotion )
 	{
 	
 	if( inMotion )
 		{
-		bullet.position.x = bullet.position.x + range * Math.cos( bullet.rotation ); 
-		bullet.position.y = bullet.position.y + range * Math.sin( bullet.rotation ); 
+		bubble.position.x = bubble.position.x + range * Math.cos( bubble.rotation ); 
+		bubble.position.y = bubble.position.y + range * Math.sin( bubble.rotation ); 
 		}
 	}
 	
 /*
-* Desc: Calculates and changes the cannons direction based on moues position
+* Desc: Calculates and changes the bubbleWands direction based on moues position
 */ 
-function calculateCannonDirection()
+function calculateBubbleWandDirection()
 	{
 	
-	xDirection = mousePosition.x - cannon.position.x; 
-	yDirection = mousePosition.y - cannon.position.y; 
+	xDirection = mousePosition.x - bubbleWand.position.x; 
+	yDirection = mousePosition.y - bubbleWand.position.y; 
 	angle = Math.atan2( yDirection, xDirection ); 
-	cannon.rotation = angle; 
+	bubbleWand.rotation = angle; 
 	}
 	
 /*
-* Desc: Checks if the bullet leaves the screen and removes it if so. 
+* Desc: Checks if the bubble leaves the screen and removes it if so. 
 */ 
-function checkBulletOutOfBounds( bullet )
+function checkbubbleOutOfBounds( bubble )
 	{
 		
-	if( bullet.position.x <= 0 ||
-			bullet.position.y <= 0 ||
-			bullet.position.x >= 800 ||
-			bullet.position.y >= 600 )
+	if( bubble.position.x <= 0 ||
+			bubble.position.y <= 0 ||
+			bubble.position.x >= 800 ||
+			bubble.position.y >= 600 )
 		{
 			
-		stage.removeChild( bullet ); 
+		stage.removeChild( bubble ); 
 		
-		bulletShotFlag = false; 
+		bubbleShotFlag = false; 
 		}
 	}
 	
@@ -340,13 +340,13 @@ function animate()
 	requestAnimationFrame( animate );
 	renderer.render( stage ); 
 
-	calculateCannonDirection(); 
-	projectBullet( bullet, bulletSpeed, bulletShotFlag ); 
+	calculateBubbleWandDirection(); 
+	projectbubble( bubble, bubbleSpeed, bubbleShotFlag ); 
 	
-	checkBulletOutOfBounds( bullet ); 
+	checkbubbleOutOfBounds( bubble ); 
 
   document.getElementById( "score" ).innerHTML = score;
 	}
 
-document.addEventListener( 'keydown', shootBullet );
+document.addEventListener( 'keydown', shootbubble );
 animate();
