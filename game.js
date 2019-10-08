@@ -4,13 +4,45 @@ var renderer = PIXI.autoDetectRenderer(
 gameport.appendChild( renderer.view );
 
 /*
-Creating stage and objects 
+* Creating different containers
 */
 var stage = new PIXI.Container();
-stage.interactive = true; 
 
+var titleScreen = new PIXI.Container(); 
+var gameplayScreen = new PIXI.Container(); 
+var creditsScreen = new PIXI.Container(); 
+var tutorialScreen = new PIXI.Container(); 
+var containers = [ titleScreen, stage, creditsScreen, tutorialScreen ]; 
+
+stage.addChild( titleScreen ); 
+stage.addChild( gameplayScreen ); 
+stage.addChild( creditsScreen ); 
+stage.addChild( tutorialScreen );
+
+titleScreen.interactive = true; 
+stage.interactive = true; 
+creditsScreen.interactive = true; 
+tutorialScreen.interactive = true; 
+
+/*
+* Creating the objects for playing the game. 
+*/ 
 var cannon = new PIXI.Sprite( PIXI.Texture.fromImage( "Arrow.png" )); 
 var bullet = new PIXI.Sprite( PIXI.Texture.fromImage( "Bullet.png" )); 
+var titleMenu = new PIXI.Sprite( PIXI.Texture.fromImage( "TitleScreen.png" )); 
+var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "StartButton.png" )); 
+var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "TutorialButton.png" )); 
+var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "CreditsButton.png" )); 
+
+/*
+var enemySprite = PIXI.Texture.fromImage( "enemy.png" ); 
+var enemy = new PIXI.Sprite( enemySprite ); 
+
+/*
+* Add objects to containers 
+*/ 
+titleScreen.addChild( titleMenu ); 
+gameplayScreen.addChild( cannon ); 
 
 /*
 Constant Variables
@@ -28,17 +60,37 @@ var xDirection;
 var yDirection; 
 var angle; 
 var mousePosition = getMousePosition(); 
-
 var bulletShotFlag = false;
+var containerIndex; 
+var score = 0; 
 
 /*
 Initializing object properties
 */
-stage.addChild( cannon ); 
+startButton.position.x = 400;  
+startButton.position.y = 350; 
+startButton.anchor.x = 0.5; 
+startButton.anchor.y = 0.5; 
+
+tutorialButton.position.x = 250; 
+tutorialButton.position.y = 500;
+tutorialButton.anchor.x = 0.5;
+tutorialButton.anchor.y = 0.5; 
+
+creditsButton.position.x = 550;
+creditsButton.position.y = 500; 
+creditsButton.anchor.x = 0.5; 
+creditsButton.anchor.y = 0.5;  
+
 cannon.anchor.x = 0.5; 
 cannon.anchor.y = 0.5; 
 cannon.position.x = cannonX; 
 cannon.position.y = cannonY; 
+
+titleMenu.anchor.x = 0.5; 
+titleMenu.anchor.y = 0.5; 
+titleMenu.position.x = 400; 
+titleMenu.position.y = 300; 
 
 bullet.anchor.x = 0.5; 
 bullet.anchor.y = 0.5; 
@@ -46,6 +98,11 @@ bullet.anchor.y = 0.5;
 /*
 Functions 
 */
+
+	
+/*
+* Desc: Used to find the position of the mouse and updates to mousePosition variable
+*/ 
 function getMousePosition(){ return renderer.plugins.interaction.mouse.global; }
 
 /*
@@ -61,6 +118,10 @@ function shootBullet( e )
 		// Make sure the space doesn't scroll the page
 		e.preventDefault();
 		
+		screen++; 
+		stage.removeChild( titleScreen ); 
+		
+		/*
 		if( bulletShotFlag == false )
 			{
 		
@@ -68,8 +129,9 @@ function shootBullet( e )
 			
 			bulletShotFlag = true; 
 			}
+			*/
 		}
-	}
+	}	
 
 /*
 * Desc: Spawns the bullet at the cannon's position and sets the rotation to 
@@ -126,22 +188,44 @@ function checkBulletOutOfBounds( bullet )
 		bulletShotFlag = false; 
 		}
 	}
+	
+function clearScreen( container )
+	{
+		
+	
+	}
+	
+	/*
+function chooseContainerToRender( containerArray )
+	{
+		
+
+	for( containerIndex = 0; containerIndex < containerArray.length; containerIndex++ )
+		{
+			
+		if( containerArray[ containerIndex ].visible == true )
+			{
+				
+			renderer.render( containerArray[ containerIndex ] ); 
+			}
+		}
+	}
+	*/
 
 /*
 animate function
 */
 function animate()
 	{
-
 	requestAnimationFrame( animate );
-	renderer.render( stage );
-	
+	renderer.render( stage ); 
+
 	calculateCannonDirection(); 
 	projectBullet( bullet, bulletSpeed, bulletShotFlag ); 
 	
 	checkBulletOutOfBounds( bullet ); 
 
-  document.getElementById( "score" ).innerHTML = "1";
+  document.getElementById( "score" ).innerHTML = score;
 	}
 
 document.addEventListener( 'keydown', shootBullet );
