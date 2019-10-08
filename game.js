@@ -4,6 +4,14 @@ var renderer = PIXI.autoDetectRenderer(
 gameport.appendChild( renderer.view );
 
 /*
+Constant Variables
+*/
+const bubbleWandX = 80; 
+const bubbleWandY = 300; 
+const bubbleSpeed = 13; 
+const thornNumber = 3; 
+
+/*
 * Creating different containers
 */
 var stage = new PIXI.Container();
@@ -12,7 +20,6 @@ var titleScreen = new PIXI.Container();
 var gameplayScreen = new PIXI.Container(); 
 var creditsScreen = new PIXI.Container(); 
 var tutorialScreen = new PIXI.Container(); 
-var containers = [ titleScreen, stage, creditsScreen, tutorialScreen ]; 
 
 stage.addChild( titleScreen ); 
 
@@ -20,16 +27,28 @@ stage.addChild( titleScreen );
 * Creating the objects for playing the game. 
 */ 
 var bubbleWand = new PIXI.Sprite( PIXI.Texture.fromImage( "bubbleWand.png" )); 
-var bubble = new PIXI.Sprite( PIXI.Texture.fromImage( "bubble.png" )); 
+var bubble = new PIXI.Sprite( PIXI.Texture.fromImage( "bubbleIdle.png" )); 
 var titleMenu = new PIXI.Sprite( PIXI.Texture.fromImage( "TitleScreen.png" )); 
 var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "StartButton.png" )); 
 var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "TutorialButton.png" )); 
 var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "CreditsButton.png" )); 
 var titleButton = new PIXI.Sprite( PIXI.Texture.fromImage( "TitleButton.png" )); 
+var thorns = []; 
+
+for( var thornCount = 0; thornCount < thornNumber; thornCount++ )
+	{
+		
+	thorns.push( new PIXI.Sprite( PIXI.Texture.fromImage( "thorn.png" ))); 
+	}
+
+
 
 /*
-var enemySprite = PIXI.Texture.fromImage( "enemy.png" ); 
-var enemy = new PIXI.Sprite( enemySprite ); 
+* Ready PIXI for sprite animation 
+*/ 
+
+PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
+PIXI.loader.add( "bubbleAnimation.json" ).load( bubbleAnimation ); 
 
 /*
 * Populate the title screen and create buttons
@@ -55,26 +74,9 @@ titleButton.interactive = true;
 titleButton.on( 'mousedown', titleMenuButtonClickHandler ); 
 
 /*
-* Populate the tutorial screen 
-*/ 
-
-
-/* 
-* Populate the credits screen 
-*/ 
-
-
-/*
 * Populate the gameplay screen 
 */ 
 gameplayScreen.addChild( bubbleWand ); 
-
-/*
-Constant Variables
-*/
-const bubbleWandX = 400; 
-const bubbleWandY = 300; 
-const bubbleSpeed = 20; 
 
 /*
 Variables 
@@ -85,12 +87,14 @@ var yDirection;
 var angle; 
 var mousePosition = getMousePosition(); 
 var bubbleShotFlag = false;
-var index; 
 var score = 0; 
-
+var frames = []; 
 var tutorialVisited = false; 
 var creditsVisited = false; 
 var gameVisited = false; 
+var thornX; 
+var thronY; 
+var index; 
 
 /*
 Initializing object properties
@@ -116,7 +120,7 @@ titleButton.anchor.x = 0.5;
 titleButton.anchor.y = 0.5; 
 
 bubbleWand.anchor.x = 0.5; 
-bubbleWand.anchor.y = 0.5; 
+bubbleWand.anchor.y = 0.3; 
 bubbleWand.position.x = bubbleWandX; 
 bubbleWand.position.y = bubbleWandY; 
 
@@ -126,12 +130,19 @@ titleMenu.position.x = 400;
 titleMenu.position.y = 300; 
 
 bubble.anchor.x = 0.5; 
-bubble.anchor.y = 0.5; 
+bubble.anchor.y = 0.5;
 
-/*
+
+for( index = 0; index < thornNumber; index++ )
+	{
+		
+	thorns[ index ].anchor.x = 0.5; 
+	thorns[ index ].anchor.y = 0.5; 
+	}
+
+/************************************************
 Functions 
-*/
-
+************************************************/
 	
 /*
 * Desc: Used to find the position of the mouse and updates to mousePosition variable
@@ -141,7 +152,7 @@ function getMousePosition(){ return renderer.plugins.interaction.mouse.global; }
 /*
 * Desc: Checks if space bar is pushed and prepares bubble for launch
 */ 
-function shootbubble( e )
+function shootBubble( e )
 	{
 		
 	if( e.keyCode == 32 &&
@@ -150,8 +161,7 @@ function shootbubble( e )
 
 		// Make sure the space doesn't scroll the page
 		e.preventDefault();
-		
-		screen++; 
+
 		stage.removeChild( titleScreen ); 
 
 		if( bubbleShotFlag == false )
@@ -163,6 +173,21 @@ function shootbubble( e )
 			}
 		}
 	}	
+	
+
+function bubbleAnimation()
+	{
+		
+	for( index = 0; index <= 8; index++ )
+		{
+		
+		frames.push( PIXI.Texture.fromFrame( "bubbleAnimation_" + index + ".png" )); 
+		bubble = new PIXI.extras.MovieClip( frames ); 
+		bubble.animationSpeed = 0.1; 
+		bubble.play(); 
+		}
+		
+	}
 	
 /***************************************************
 	Menu Button Functions 
@@ -179,6 +204,10 @@ function startButtonClickHandler( e )
 	stage.addChild( gameplayScreen ); 
 	gameplayScreen.addChild( titleButton ); 
 	
+	bubbleWand.position.x = bubbleWandX; 
+	bubbleWand.position.y = bubbleWandY; 
+	gameplayScreen.addChild( bubbleWand ); 
+	
 	renderer.backgroundColor = 0xffb18a; 
 	}
 	
@@ -191,9 +220,22 @@ function tutorialButtonClickHandler( e )
 	tutorialVisited = true; 
 	stage.removeChild( titleScreen );
 	stage.addChild( tutorialScreen );
-	
-	tutorialScreen.addChild( titleButton ); 	
+	 	
 	renderer.backgroundColor = 0x7dadff;
+	
+	var tutorialText = new PIXI.Text( "You are a bubbleblower who is trying to defend themselves\nfrom thorns trying ruin your fun\nUse your bubbles to stop the thorns before they ruin your wand\n\nTo aim your bubbles, aim with your mouse\nTo blow a bubble, press \"space\"" ); 
+	tutorialText.position.x = 400; 
+	tutorialText.position.y = 450; 
+	tutorialText.anchor.x = 0.5; 
+	tutorialText.anchor.y = 0.5; 
+	
+	bubbleWand.position.x = 400; 
+	bubbleWand.position.y = 200; 
+	
+	tutorialScreen.addChild( tutorialText ); 
+	tutorialScreen.addChild( titleButton );
+	tutorialScreen.addChild( bubbleWand ); 
+	
 	}
 	
 /*
@@ -239,12 +281,6 @@ function titleMenuButtonClickHandler( e )
 		stage.removeChild( tutorialScreen ); 
 		tutorialVisited = false; 
 		}
-		
-	/*
-	stage.removeChild( gameplayScreen ); 
-	stage.removeChild( creditsScreen ); 
-	stage.removeChild( tutorialScreen ); 
-	*/ 
 
 	stage.addChild( titleScreen ); 
 	}
@@ -309,28 +345,31 @@ function checkbubbleOutOfBounds( bubble )
 		}
 	}
 	
-function clearScreen( container )
+/*
+function checkThornHit( Thorn )
 	{
 		
-	
-	}
-	
-	/*
-function chooseContainerToRender( containerArray )
-	{
-		
-
-	for( containerIndex = 0; containerIndex < containerArray.length; containerIndex++ )
+	if( Thorn.position.x <= bubbleWandX )
 		{
 			
-		if( containerArray[ containerIndex ].visible == true )
-			{
-				
-			renderer.render( containerArray[ containerIndex ] ); 
-			}
+		gameplayScreen.removeChild( Thorn ); 
 		}
 	}
-	*/
+	
+function spawnThorn( Thorn )
+	{
+		
+	Thorn.position.x = 750; 
+	Thron.position.y = Math.floor( Math.random() * 550 + 25 ); 
+	
+	
+	}
+	
+function calculateThornDirection( Thorn )
+	{
+		
+	
+	}
 
 /*
 animate function
@@ -348,5 +387,5 @@ function animate()
   document.getElementById( "score" ).innerHTML = score;
 	}
 
-document.addEventListener( 'keydown', shootbubble );
+document.addEventListener( 'keydown', shootBubble );
 animate();
