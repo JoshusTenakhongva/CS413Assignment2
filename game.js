@@ -10,6 +10,8 @@ const bubbleWandX = 80;
 const bubbleWandY = 300; 
 const bubbleSpeed = 13; 
 const thornNumber = 3; 
+const bubbleRadius = 15; 
+const thornSpeed = 3000; 
 
 /*
 * Creating different containers
@@ -93,7 +95,9 @@ var tutorialVisited = false;
 var creditsVisited = false; 
 var gameVisited = false; 
 var thornX; 
-var thronY; 
+var thornY; 
+var thornIndex; 
+var thornTimer; 
 var index; 
 
 /*
@@ -345,11 +349,20 @@ function checkbubbleOutOfBounds( bubble )
 		}
 	}
 	
-/*
+
 function checkThornHit( Thorn )
 	{
 		
 	if( Thorn.position.x <= bubbleWandX )
+		{
+			
+		gameplayScreen.removeChild( Thorn ); 
+		}
+		
+	if( bubble.position.x + bubbleRadius >= Thorn.position.x &&
+			bubble.position.x - bubbleRadius <= Thorn.position.x &&
+			bubble.position.y + bubbleRadius >= Thorn.position.y &&
+			bubble.position.y - bubbleRadius <= Thorn.position.y )
 		{
 			
 		gameplayScreen.removeChild( Thorn ); 
@@ -360,9 +373,18 @@ function spawnThorn( Thorn )
 	{
 		
 	Thorn.position.x = 750; 
-	Thron.position.y = Math.floor( Math.random() * 550 + 25 ); 
+	Thorn.position.y = Math.floor( Math.random() * 550 + 25 ); 
 	
+	gameplayScreen.addChild( Thorn ); 
 	
+	createjs.Tween.get( Thorn.position ).to({x: bubbleWandX, y: bubbleWandY}, thornSpeed ); 
+	
+	thornIndex++; 
+	if( thornIndex == thornNumber )
+		{
+		
+		thornIndex = 0; 
+		}
 	}
 	
 function calculateThornDirection( Thorn )
@@ -383,6 +405,8 @@ function animate()
 	projectbubble( bubble, bubbleSpeed, bubbleShotFlag ); 
 	
 	checkbubbleOutOfBounds( bubble ); 
+	
+	spawnThorn( thorns[ thornIndex ] ); 
 
   document.getElementById( "score" ).innerHTML = score;
 	}
